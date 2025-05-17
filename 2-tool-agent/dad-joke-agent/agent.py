@@ -1,27 +1,33 @@
-from google.adk.agents import Agent
-from google.adk.tools import google_search
-from datetime import datetime
+import os
+import random
 
-# New resource discovered:
-# - get_current_time
-def get_current_time():
-    
-    """
-     Get the current time in the format "YYYY-MM-DD HH:MM:SS".
-    """
-    return {
-      "current_time":  datetime.now().strftime("%Y-%m-%d %H:%M:%S")        
-    }
+from google.adk.agents import Agent
+from google.adk.models.lite_llm import LiteLlm
+
+# https://docs.litellm.ai/docs/providers/openrouter
+model = LiteLlm(
+    model="openrouter/openai/gpt-4.1",
+    api_key=os.getenv("OPENROUTER_API_KEY"),
+)
+
+
+def get_dad_joke():
+    jokes = [
+        "Why did the chicken cross the road? To get to the other side!",
+        "What do you call a belt made of watches? A waist of time.",
+        "What do you call fake spaghetti? An impasta!",
+        "Why did the scarecrow win an award? Because he was outstanding in his field!",
+    ]
+    return random.choice(jokes)
+
 
 root_agent = Agent(
-    name="dad-joke-agent",
-    model="gemini-2.0-flash",
-    description="An agent that tells jokes",
+    name="dad_joke_agent",
+    model=model,
+    description="Dad joke agent",
     instruction="""
-    You are a helpfull assistant that can use the following tools:
-    - get_current_time
+    You are a helpful assistant that can tell dad jokes. 
+    Only use the tool `get_dad_joke` to tell jokes.
     """,
-    tools=[
-        get_current_time
-    ]
-    )
+    tools=[get_dad_joke],
+)
